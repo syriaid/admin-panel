@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYRIA ID - لوحة التحكم</title>
+    <!-- مكتبة الأيقونات FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #080e0c;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* نظام الإشعارات الداخلي المطور */
+        #custom-toast {
+            position: fixed;
+            top: 25px;
+            left: 25px;
+            background-color: #0f1c18;
+            border: 1px solid #142821;
+            color: #ffffff;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 9999;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        #custom-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        #custom-toast i {
+            font-size: 18px;
+        }
+
+        #custom-toast.success {
+            border-color: rgba(34, 197, 94, 0.4);
+            background: linear-gradient(135deg, #0b1f18 0%, #063c2b 100%);
+        }
+        #custom-toast.success i {
+            color: #4ade80;
+        }
+
+        #custom-toast.error {
+            border-color: rgba(239, 68, 68, 0.4);
+            background: linear-gradient(135deg, #1f0b0b 0%, #3c0606 100%);
+        }
+        #custom-toast.error i {
+            color: #f87171;
+        }
+
+        /* تصميم النافذة المنبثقة المخصصة (Modal) */
+        .custom-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(4px);
+        }
+
+        .custom-modal-box {
+            background-color: #0f1c18;
+            border: 1px solid #142821;
+            border-radius: 14px;
+            width: 90%;
+            max-width: 400px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+            text-align: center;
+            animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .custom-modal-box i {
+            font-size: 35px;
+            color: #4ade80;
+            margin-bottom: 12px;
+        }
+
+        .custom-modal-box h3 {
+            font-size: 18px;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .custom-modal-box p {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .custom-modal-box input {
+            width: 100%;
+            background-color: #0b1512;
+            border: 1px solid #142821;
+            border-radius: 8px;
+            padding: 12px 15px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 20px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .custom-modal-box input:focus {
+            border-color: #4ade80;
+        }
+
+        .custom-modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: 0.3s;
+        }
+
+        .modal-btn-confirm {
+            background-color: #054734;
+            color: #4ade80;
+            border: 1px solid #0e5c43;
+        }
+
+        .modal-btn-confirm:disabled {
+            background-color: #11261e;
+            color: #555555;
+            border-color: #142821;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .modal-btn-confirm:hover:not(:disabled) {
+            background-color: #0e5c43;
+            color: #ffffff;
+        }
+
+        .modal-btn-cancel {
+            background-color: #470505;
+            color: #f87171;
+            border: 1px solid #5c0e0e;
+        }
+
+        .modal-btn-cancel:hover {
+            background-color: #5c0e0e;
+            color: #ffffff;
+        }
+
+        /* القائمة الجانبية */
+        aside {
+            width: 260px;
+            background-color: #0b1512;
+            border-left: 1px solid #142821;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .logo-area {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #142821;
+        }
+
+        .logo-area img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            margin-bottom: 5px;
+            border-radius: 50%;
+        }
+
+        .logo-area h2 {
+            font-size: 18px;
+            color: #4ade80;
+            margin-top: 8px;
+        }
+
+        .nav-links {
+            list-style: none;
+            margin-top: 20px;
+            flex-grow: 1;
+        }
+
+        .nav-links li {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.3s;
+        }
+
+        .nav-links li:hover, .nav-links li.active {
+            background-color: #11261e;
+            color: #4ade80;
+        }
+
+        /* المحتوى الرئيسي */
+        main {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* الشريط العلوي */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0f1c18;
+            padding: 15px 25px;
+            border-radius: 12px;
+            border: 1px solid #142821;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            font-size: 20px;
+            color: #ffffff;
+        }
+
+        /* حاوية زر المسؤولين المنسدل */
+        .user-badge-container {
+            position: relative;
+        }
+
+        .user-badge {
+            background-color: #0b1512;
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 1px solid #142821;
+            font-size: 14px;
+            color: #4ade80;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            user-select: none;
+        }
+
+        .user-badge:hover {
+            background-color: #11261e;
+            border-color: #0e5c43;
+        }
+
+        /* القائمة المنبثقة لأسماء المسؤولين */
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            width: 190px;
+            background-color: #0b1512;
+            border: 1px solid #142821;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 99999;
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        .dropdown-item {
+            padding: 10px 15px;
+            font-size: 13px;
+            color: #cbd5e1;
+            border-bottom: 1px solid #142821;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: #11261e;
+            color: #4ade80;
+        }
+
+        /* قسم الإحصائيات والترحيب */
+        .top-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .welcome-card {
+            background: linear-gradient(135deg, #063c2b 0%, #0b1f18 100%);
+            border: 1px solid #0e5c43;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .welcome-card h3 {
+            font-size: 18px;
+            color: #4ade80;
+            margin-bottom: 8px;
+        }
+
+        .welcome-card p {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .stat-card {
+            background-color: #0f1c18;
+            border: 1px solid #142821;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card i {
+            font-size: 20px;
+            color: #4ade80;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 5px;
+        }
+
+        /* الأقسام السفلية */
+        .card-box {
+            background-color: #0f1c18;
+            border: 1px solid #142821;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .card-box h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #ffffff;
+            border-bottom: 1px solid #142821;
+            padding-bottom: 10px;
+        }
+
+        /* قائمة المتقدمين والإدارة */
+        .applicant-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0b1512;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #142821;
+        }
+
+        .applicant-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .applicant-info img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .applicant-info h4 {
+            font-size: 14px;
+            color: #ffffff;
+        }
+
+        .applicant-info span {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .applicant-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .status-badge.accepted {
+            background-color: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-badge.owner {
+            background-color: rgba(234, 179, 8, 0.2);
+            color: #facc15;
+            border: 1px solid rgba(234, 179, 8, 0.4);
+        }
+
+        .status-badge.rejected {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-badge.pending {
+            background-color: rgba(234, 179, 8, 0.15);
+            color: #facc15;
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+
+        .action-btn {
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-accept {
+            background-color: #054734;
+            color: #4ade80;
+            border: 1px solid #0e5c43;
+        }
+
+        .btn-accept:hover {
+            background-color: #0e5c43;
+            color: #ffffff;
+        }
+
+        .btn-reject {
+            background-color: #4d3805;
+            color: #facc15;
+            border: 1px solid #634b07;
+        }
+
+        .btn-reject:hover {
+            background-color: #634b07;
+            color: #ffffff;
+        }
+
+        .btn-delete {
+            background-color: #470505;
+            color: #f87171;
+            border: 1px solid #5c0e0e;
+        }
+
+        .btn-delete:hover {
+            background-color: #5c0e0e;
+            color: #ffffff;
+        }
+
+        /* نموذج الاستمارة */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            background-color: #0b1512;
+            border: 1px solid #142821;
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: #4ade80;
+        }
+
+        textarea.form-control {
+            resize: none;
+            height: 80px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background-color: #054734;
+            color: #4ade80;
+            border: 1px solid #0e5c43;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #0e5c43;
+            color: #ffffff;
+        }
+
+        .closed-notice {
+            background-color: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        /* أزرار التحكم بالتقديم في الإدارة العليا */
+        .toggle-form-box {
+            background-color: #0b1512;
+            border: 1px solid #142821;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-form-box h4 {
+            color: #ffffff;
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+
+        .toggle-form-box p {
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
+        .toggle-action-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: 0.3s;
+        }
+
+        .btn-open-form {
+            background-color: #054734;
+            color: #4ade80;
+            border: 1px solid #0e5c43;
+        }
+
+        .btn-open-form:hover {
+            background-color: #0e5c43;
+            color: #ffffff;
+        }
+
+        .btn-close-form {
+            background-color: #470505;
+            color: #f87171;
+            border: 1px solid #5c0e0e;
+        }
+
+        .btn-close-form:hover {
+            background-color: #5c0e0e;
+            color: #ffffff;
+        }
+
+        /* شاشة تسجيل الدخول للإدارة العليا */
+        .login-box-container {
+            background-color: #0f1c18;
+            border: 1px solid #142821;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            margin: 40px auto;
+        }
+
+        .login-box-container i {
+            font-size: 40px;
+            color: #4ade80;
+            margin-bottom: 15px;
+        }
+
+        .login-box-container h3 {
+            color: #ffffff;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .login-box-container p {
+            color: #9ca3af;
+            font-size: 13px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* الشاشات المختلفة */
+        .home-view, .rules-view, .upper-admin-view, .login-view, .team-view {
+            display: none;
+            background-color: #0f1c18;
+            border: 1px solid #142821;
+            border-radius: 12px;
+            padding: 30px;
+        }
+
+        .home-header-center {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #142821;
+        }
+
+        .home-view img.main-logo-img {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            border-radius: 50%;
+        }
+
+        .home-view h2 {
+            font-size: 26px;
+            color: #4ade80;
+            margin-bottom: 10px;
+        }
+
+        .home-view p.intro-p {
+            font-size: 15px;
+            color: #cbd5e1;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .home-details-box {
+            background-color: #0b1512;
+            border: 1px solid #142821;
+            border-radius: 10px;
+            padding: 25px;
+            line-height: 1.8;
+            font-size: 14px;
+            color: #e2e8f0;
+        }
+
+        .home-details-box h4 {
+            color: #4ade80;
+            margin-bottom: 12px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .home-details-box ul {
+            list-style: none;
+            margin: 15px 0;
+            padding-right: 15px;
+        }
+
+        .home-details-box ul li {
+            position: relative;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+        }
+
+        .home-details-box ul li::before {
+            content: "•";
+            color: #4ade80;
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-right: -1em;
+        }
+
+        .warning-box {
+            background-color: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            color: #facc15;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .note-box {
+            background-color: rgba(74, 222, 128, 0.1);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-top: 8px;
+            margin-bottom: 15px;
+            color: #4ade80;
+            font-size: 12px;
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rules-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #142821;
+        }
+
+        .rules-header h2 {
+            color: #4ade80;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rules-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .rule-item {
+            background-color: #0b1512;
+            border: 1px solid #142821;
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #e2e8f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            line-height: 1.6;
+        }
+
+        .rule-item i {
+            color: #4ade80;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- عنصر الإشعار المنبثق الأنيق -->
+    <div id="custom-toast">
+        <i id="toast-icon" class="fa-solid fa-circle-check"></i>
+        <span id="toast-message">رسالة الإشعار</span>
+    </div>
+
+    <!-- نافذة إدخال اسم المسؤول المخصصة (Modal) -->
+    <div id="admin-modal" class="custom-modal-overlay">
+        <div class="custom-modal-box">
+            <i class="fa-solid fa-user-shield"></i>
+            <h3>تأكيد الإجراء</h3>
+            <p>من هو المسؤول الذي قام بهذا الإجراء؟</p>
+            <input type="text" id="modal-admin-input" placeholder="ادخل اسمك" oninput="validateAdminInputModal()" autocomplete="off">
+            <div class="custom-modal-actions">
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeAdminModal()">إلغاء</button>
+                <button type="button" id="modal-confirm-btn" class="modal-btn modal-btn-confirm" disabled onclick="confirmAdminAction()">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- القائمة الجانبية -->
+    <aside>
+        <div>
+            <div class="logo-area">
+                <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+                <h2>SYRIA ID ADMIN</h2>
+            </div>
+            <ul class="nav-links">
+                <li id="nav-home" class="active" onclick="switchTab('home')"><i class="fa-solid fa-house"></i> الرئيسية</li>
+                <li id="nav-rules" onclick="switchTab('rules')"><i class="fa-solid fa-address-book"></i> قوانين الادارة</li>
+                <li id="nav-team" onclick="switchTab('team')"><i class="fa-solid fa-users"></i> الإدارة</li>
+                <li id="nav-form-admin" onclick="switchTab('form-admin')"><i class="fa-solid fa-clipboard-list"></i> استمارة الإدارة</li>
+                <li id="nav-upper-admin" onclick="switchTab('upper-admin')"><i class="fa-solid fa-user-tie"></i> الإدارة العليا</li>
+            </ul>
+        </div>
+        <div style="font-size: 12px; color: #6b7280; text-align: center;">
+            SYRIA ID &copy; 2026
+        </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <main>
+        <!-- الشريط العلوي -->
+        <header>
+            <h1 id="page-title">الرئيسية</h1>
+            
+            <!-- زر المسؤولين المنسدل مع الآيديهات المحدثة -->
+            <div class="user-badge-container">
+                <div class="user-badge" onclick="toggleAdminsDropdown(event)">
+                    <i class="fa-solid fa-user-shield"></i> المسؤولين <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-right: 5px;"></i>
+                </div>
+                <div id="admins-dropdown" class="dropdown-menu">
+                    <div onclick="window.open('https://discord.com/users/1435769637026402387', '_blank')" class="dropdown-item">
+                        <i class="fa-brands fa-discord" style="color: #4ade80;"></i> ANAS
+                    </div>
+                    <div onclick="window.open('https://discord.com/users/1363243483250430032', '_blank')" class="dropdown-item">
+                        <i class="fa-brands fa-discord" style="color: #4ade80;"></i> BALOUSH
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- شاشة الرئيسية -->
+        <div id="home-content" class="home-view" style="display: block;">
+            <div class="home-header-center">
+                <img src="logo.png" alt="Logo" class="main-logo-img" onerror="this.style.display='none'">
+                <h2>أهلاً بك في سيرفر SYRIA ID</h2>
+                <p class="intro-p">السلام عليكم ورحمة الله وبركاته، تعلن إدارة SYRIA ID فتح باب التقديم ونقل الإدارة للراغبين بالانضمام إلى الطاقم الإداري والمساهمة في تطوير المدينة والارتقاء بمستوى المجتمع.</p>
+            </div>
+
+            <div class="home-details-box">
+                <h4><i class="fa-solid fa-bullseye"></i> معايير الاختيار</h4>
+                <p style="margin-bottom: 15px; color: #cbd5e1;">نسعى لاختيار أشخاص يتمتعون بالجدية والمسؤولية وحسن التعامل والقدرة على إدارة مختلف المواقف بحكمة الحيادية.</p>
+
+                <h4><i class="fa-solid fa-clipboard-check"></i> قبل التقديم، يرجى التأكد من:</h4>
+                <ul>
+                    <li>قراءة قوانين CFW كاملة وفهمها جيدًا.</li>
+                    <li>قراءة قوانين المدينة والالتزام بها.</li>
+                    <li>قراءة القوانين الأساسية وفهمها بشكل جيد.</li>
+                    <li>الالتزام بطريقة تعامل راقية ومحترمة مع الجميع.</li>
+                    <li>التحلي بالصبر وحسن التصرف في جميع المواقف.</li>
+                    <li>الالتزام بالحيادية والعدل أثناء التعامل مع الحالات.</li>
+                </ul>
+
+                <p style="margin-top: 15px; color: #cbd5e1;"><i class="fa-solid fa-hourglass-half" style="color: #4ade80; margin-left: 5px;"></i> يرجى الانتظار وعدم الاستعجال، وسيتم الإعلان عن المقبولين رسميًا من قِبل الإدارة العليا، مع توضيح جميع التفاصيل في حينها.</p>
+
+                <div class="warning-box">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 16px;"></i>
+                    <span><strong>تنبيه:</strong> عدم معرفة القوانين أو عدم الالتزام بها أثناء المقابلة قد يؤدي إلى استبعاد المتقدم مباشرة.</span>
+                </div>
+
+                <p style="text-align: center; margin-top: 20px; color: #4ade80; font-weight: bold;">نتمنى التوفيق للجميع، وبانتظار أصحاب الكفاءة والجدية للانضمام إلى فريق إدارة SYRIA ID.</p>
+            </div>
+        </div>
+
+        <!-- شاشة قوانين الإدارة -->
+        <div id="rules-content" class="rules-view">
+            <div class="rules-header">
+                <h2><i class="fa-solid fa-book-open"></i> قوانين الإدارة</h2>
+                <p style="color: #9ca3af; font-size: 13px; margin-top: 5px;">يجب على جميع الإداريين الالتزام التام بالقوانين التالية لتجنب المساءلة والعقوبات.</p>
+            </div>
+            <div class="rules-list">
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>1- اي شخص ب إدارة ب سيرفر ثاني راح يتم فصلة</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>2- لا يحق للأدمن مخالفة الرول بلاي مثال (يمنع استعمال الطيران بجانب المواطنين)</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>3- لا يحق للأدمن الانتقال الى اماكن اخرى بقصد اختصار الوقت</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>4- لا يحق للأدمن التدخل في شؤون الأدارة العليا او مراقبتهم</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>5- لا يحق للأدمن استعمال الهاك</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>6- لا يحق للأدمن التدخل في قضية أدمن اخر دون استئذان</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>7- لا يحق للأدمن تهديد اي مواطن بلحضر في اي حال من الأحوال</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>8- لا يحق للأدمن استعمال خواصه للتفاخر واستغلالها مع المواطنين</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>9- لا يحق للأدمن انعاش اي نفسة امام اي مواطن</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>10- لا يحقا لاداري انعاش اي شخص عن بعد (لازم تروح له تليبورت وتعرف كيف مات)</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>11- لا يحقا لاداري اعطاء اي مواطن تحذير دون وجود شيء ضده مع دليل فيديو</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>12- يجب عليك تسجيل دخول وخروج عن طريق الموقع المخصص للادارة</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>13- يجب عليك تسجيل أي شخص يتم تبنيده في سجل الباند</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>14- يجب عليك احترام اي مواطن وأي شخص واسلوبك هو المهم</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>15- يجب عليك حل مشاكل المواطين وعدم التردد في حل المشكلة</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>16- يجب عليك مساعدة أي شخص يطلبك</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>17- يجب عليك التركيز بل دعم الفني لمساعدة المواطنين في أسرع وقت ممكن</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>18- يجب عليك مراعاة ضروف الأشخاص لأن هناك أشخاص لا يملكون معلومات عن الروليجب عليك مساعدتهم</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>19- يمنع سب او شتم اي شخص كان</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>20- عدم تسجيلك في سجل الحضور يعرضك للمسائلات من قبل الأدارة العليا</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>21- يمنع منعا باتا رفض مساعدة أي مواطن كان (لو الشخص بدو مساعدة وهوة داخل المدينة وما يعرف بلقانون من المفترض تساعده لتعليمه القوانين)</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>22- يمنع منعا باتا استخدام الإدارة (الطيران-اضهار اللاعبين) في حال كنت تلعب بصفتك مواطن</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>23- يمنع منعاباتن التهاون بل رول بلي</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>24- يمنع على الادمن انعاش اي مواطن اثناء السيناريو</span></div>
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> <span>25- لا يحق للأدمن الانتقال أو سحب أي اداري اخر</span></div>
+            </div>
+        </div>
+
+        <!-- شاشة فريق الإدارة -->
+        <div id="team-content" class="team-view">
+            <div class="rules-header">
+                <h2><i class="fa-solid fa-users"></i> طاقم الإدارة الحالي</h2>
+                <p style="color: #9ca3af; font-size: 13px; margin-top: 5px;">قائمة الأعضاء الإداريين الحاليين في سيرفر SYRIA ID.</p>
+            </div>
+            <div class="card-box">
+                <h3>الأعضاء الإداريون</h3>
+                
+                <!-- مالك سيرفر yazan -->
+                <div class="applicant-item">
+                    <div class="applicant-info">
+                        <img src="yazan.png" alt="yazan" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
+                        <div>
+                            <h4>yazan</h4>
+                            <span>الرتبة: مبرمج</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="status-badge owner">مالك سيرفر</span>
+                    </div>
+                </div>
+
+                <!-- مالك السيرفر ahmad salloum -->
+                <div class="applicant-item">
+                    <div class="applicant-info">
+                        <img src="ahmad.png" alt="ahmad salloum" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
+                        <div>
+                            <h4>ahmad salloum</h4>
+                            <span>الرتبة: team1</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="status-badge owner">مالك سيرفر</span>
+                    </div>
+                </div>
+
+                <!-- مالك سيرفر hasoo -->
+                <div class="applicant-item">
+                    <div class="applicant-info">
+                        <img src="haso.png" alt="hasoo" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
+                        <div>
+                            <h4>hasoo</h4>
+                            <span>الرتبة: team1</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="status-badge owner">مالك سيرفر</span>
+                    </div>
+                </div>
+
+                <!-- Team2 ANAS -->
+                <div class="applicant-item">
+                    <div class="applicant-info">
+                        <img src="anas.png" alt="ANAS" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
+                        <div>
+                            <h4>ANAS</h4>
+                            <span>الرتبة: Team2</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="status-badge accepted">إدارة عليا</span>
+                    </div>
+                </div>
+
+                <!-- Team2 baluosh -->
+                <div class="applicant-item">
+                    <div class="applicant-info">
+                        <img src="baluosh.png" alt="baluosh" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
+                        <div>
+                            <h4>baluosh</h4>
+                            <span>الرتبة: Team2</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="status-badge accepted">إدارة عليا</span>
+                    </div>
+                </div>
+
+                <!-- المشرف العام Deri7 -->
+                <div class="applicant-item">
+                    <div class="applicant-info">
+                        <img src="deri7.png" alt="Deri7" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
+                        <div>
+                            <h4>Deri7</h4>
+                            <span>الرتبة: مشرف عام</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="status-badge accepted">إدارة عليا</span>
+                    </div>
+                </div>
+
+                <!-- إداري jabal -->
+                <div class="applicant-item">
+                    <div class="applicant-info">
+                        <img src="jabal.png" alt="jabal" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
+                        <div>
+                            <h4>jabal</h4>
+                            <span>الرتبة: إداري</span>
+                        </div>
+                    </div>
+                    <div></div>
+                </div>
+
+                <!-- إداري siaf -->
+                <div class="applicant-item">
+                    <div class="applicant-info">
+                        <img src="siaf.png" alt="siaf" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
+                        <div>
+                            <h4>siaf</h4>
+                            <span>الرتبة: إداري</span>
+                        </div>
+                    </div>
+                    <div></div>
+                </div>
+
+                <!-- مساعد إداري ابو حلب -->
+                <div class="applicant-item">
+                    <div class="applicant-info">
+                        <img src="apo.png" alt="ابو حلب" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
+                        <div>
+                            <h4>ابو حلب</h4>
+                            <span>الرتبة: مساعد إداري</span>
+                        </div>
+                    </div>
+                    <div></div>
+                </div>
+
+                <!-- مساعد إداري miro -->
+                <div class="applicant-item">
+                    <div class="applicant-info">
+                        <img src="miro.png" alt="miro" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
+                        <div>
+                            <h4>miro</h4>
+                            <span>الرتبة: مساعد إداري</span>
+                        </div>
+                    </div>
+                    <div></div>
+                </div>
+
+                <!-- إداري مبتدئ افغاني -->
+                <div class="applicant-item">
+                    <div class="applicant-info">
+                        <img src="afg.png" alt="افغاني" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
+                        <div>
+                            <h4>افغاني</h4>
+                            <span>الرتبة: إداري مبتدئ</span>
+                        </div>
+                    </div>
+                    <div></div>
+                </div>
+
+                <!-- إداري مبتدئ L3GEND -->
+                <div class="applicant-item">
+                    <div class="applicant-info">
+                        <img src="leg.png" alt="L3GEND" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
+                        <div>
+                            <h4>L3GEND</h4>
+                            <span>الرتبة: إداري مبتدئ</span>
+                        </div>
+                    </div>
+                    <div></div>
+                </div>
+
+                <!-- إداري مبتدئ mosa -->
+                <div class="applicant-item">
+                    <div class="applicant-info">
+                        <img src="mosa.png" alt="mosa" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
+                        <div>
+                            <h4>mosa</h4>
+                            <span>الرتبة: إداري مبتدئ</span>
+                        </div>
+                    </div>
+                    <div></div>
+                </div>
+
+                <!-- إداري مبتدئ ALI -->
+                <div class="applicant-item">
+                    <div class="applicant-info">
+                        <img src="ali.png" alt="ALI" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
+                        <div>
+                            <h4>ALI</h4>
+                            <span>الرتبة: إداري مبتدئ</span>
+                        </div>
+                    </div>
+                    <div></div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- محتوى استمارة الإدارة -->
+        <div id="admin-form-content" style="display: none;">
+            <div class="card-box" style="width: 100%;">
+                <h3>لوحة التحكم والمتابعة (استمارة التقديم)</h3>
+                
+                <div id="form-closed-notice" class="closed-notice">
+                    <i class="fa-solid fa-triangle-exclamation"></i> عذراً، باب التقديم على الإدارة مغلق حالياً من قِبل الإدارة العليا!
+                </div>
+
+                <form id="discordForm" onsubmit="sendToDiscord(event)">
+                    <div class="form-group">
+                        <label>الاسم الكامل</label>
+                        <input type="text" id="f-name" class="form-control" placeholder="أدخل اسمك الكامل" required>
+                    </div>
+                    <div class="form-group">
+                        <label>اسم المستخدم في الديسكورد</label>
+                        <input type="text" id="f-discord" class="form-control" placeholder="username#0000" required>
+                    </div>
+                    <div class="note-box">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>بعد التقديم، سيتم إرسال طلبك مباشرة إلى ديسكورد الإدارة وحفظه في لوحة التحكم.</span>
+                    </div>
+                    <div class="form-group">
+                        <label>العمر</label>
+                        <input type="number" id="f-age" class="form-control" placeholder="أدخل عمرك" required>
+                    </div>
+                    <div class="form-group">
+                        <label>مدة خبرتك بالإدارة:</label>
+                        <input type="text" id="f-exp" class="form-control" placeholder="اذكر مدة خبرتك" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ما الذي يمكنك تقديمه للإدارة؟</label>
+                        <textarea id="f-offer" class="form-control" placeholder="اكتب ما يمكنك تقديمه" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>وقت تواجدك اليومي:</label>
+                        <input type="text" id="f-time" class="form-control" placeholder="مثال: من الساعة 4 عصراً حتى 10 مساءً" required>
+                    </div>
+                    <div class="form-group">
+                        <label>هل لديك أي عقوبات أو باندات سابقة؟:</label>
+                        <input type="text" id="f-bans" class="form-control" placeholder="نعم / لا (مع التفاصيل إن وجدت)" required>
+                    </div>
+                    <div class="form-group">
+                        <label>هل لديك سيرفرات أخرى تعمل فيها</label>
+                        <input type="text" id="f-servers" class="form-control" placeholder="اذكر أسماء السيرفرات إن وجدت">
+                    </div>
+                    <div class="form-group">
+                        <label>الخبرات الإدارية السابقة</label>
+                        <input type="text" id="f-oldexp" class="form-control" placeholder="اذكر خبراتك السابقة إن وجدت">
+                    </div>
+                    <div class="form-group">
+                        <label>لماذا ترغب في الانضمام؟</label>
+                        <textarea id="f-why" class="form-control" placeholder="اكتب سبب رغبتك في الانضمام للإدارة" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn" id="submitBtnText">
+                        <i class="fa-brands fa-discord"></i> إرسال الطلب إلى الديسكورد والموقع
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- شاشة تسجيل الدخول للإدارة العليا -->
+        <div id="login-view-content" class="login-view">
+            <div class="login-box-container">
+                <i class="fa-solid fa-lock"></i>
+                <h3>الإدارة العليا</h3>
+                <p>هذه الروم مخصصة للإدارة العليا، يرجى إدخال كلمة المرور للمتابعة.</p>
+                <div class="form-group" style="text-align: right;">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="admin-password-input" class="form-control" placeholder="أدخل كلمة المرور...">
+                </div>
+                <button type="button" class="submit-btn" onclick="verifyPassword()">
+                    <i class="fa-solid fa-key"></i> دخول
+                </button>
+            </div>
+        </div>
+
+        <!-- شاشة الإدارة العليا الفعلية -->
+        <div id="upper-admin-content" class="upper-admin-view">
+            <div class="rules-header">
+                <h2><i class="fa-solid fa-user-tie"></i> لوحة تحكم الإدارة العليا</h2>
+                <p style="color: #9ca3af; font-size: 13px; margin-top: 5px;">متابعة إحصائيات المتقدمين وإدارة الطلبات.</p>
+            </div>
+            
+            <!-- زر التحكم بفتح وإغلاق التقديم -->
+            <div class="toggle-form-box">
+                <div>
+                    <h4>حالة استمارة التقديم</h4>
+                    <p id="form-status-text">التقديم مفتوح حالياً ويمكن للجميع إرسال استماراتهم.</p>
+                </div>
+                <div>
+                    <button id="toggle-form-btn" class="toggle-action-btn btn-close-form" onclick="toggleFormStatus()">إغلاق التقديم</button>
+                </div>
+            </div>
+
+            <div class="top-section" style="margin-bottom: 25px;">
+                <div class="welcome-card">
+                    <h3>نظرة عامة على الطلبات</h3>
+                    <p>متابعة حالة المتقدمين الجدد وإجمالي الطلبات المسجلة في النظام.</p>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <i class="fa-solid fa-file-lines"></i>
+                        <div class="number" id="total-apps">0</div>
+                        <div class="label">إجمالي الطلبات</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-user-check"></i>
+                        <div class="number" id="accepted-apps">0</div>
+                        <div class="label">المقبولين</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-user-xmark"></i>
+                        <div class="number" id="rejected-apps">0</div>
+                        <div class="label">المرفوضين</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-box">
+                <h3>أحدث المتقدمين</h3>
+                <div id="applicants-list-container">
+                    <!-- سيتم إضافة الطلبات هنا تلقائياً -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentActionApplicantId = null;
+        let currentActionType = null;
+
+        const allowedAdminsList = ["anas", "baluosh", "hasoo", "deri7", "yazan"];
+
+        function toggleAdminsDropdown(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('admins-dropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.closest('.user-badge-container')) {
+                const dropdown = document.getElementById('admins-dropdown');
+                if (dropdown && dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('custom-toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = message;
+            toast.className = '';
+            toast.classList.add(type);
+
+            if(type === 'success') {
+                toastIcon.className = 'fa-solid fa-circle-check';
+            } else {
+                toastIcon.className = 'fa-solid fa-triangle-exclamation';
+            }
+
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function openAdminModal(id, actionType) {
+            currentActionApplicantId = id;
+            currentActionType = actionType;
+            document.getElementById('modal-admin-input').value = '';
+            document.getElementById('modal-confirm-btn').disabled = true;
+            document.getElementById('admin-modal').style.display = 'flex';
+            document.getElementById('modal-admin-input').focus();
+        }
+
+        function closeAdminModal() {
+            document.getElementById('admin-modal').style.display = 'none';
+            currentActionApplicantId = null;
+            currentActionType = null;
+        }
+
+        function validateAdminInputModal() {
+            let adminName = document.getElementById('modal-admin-input').value.trim().toLowerCase();
+            let confirmBtn = document.getElementById('modal-confirm-btn');
+
+            if (allowedAdminsList.includes(adminName)) {
+                confirmBtn.disabled = false;
+            } else {
+                confirmBtn.disabled = true;
+            }
+        }
+
+        function confirmAdminAction() {
+            let adminNameInput = document.getElementById('modal-admin-input').value.trim().toLowerCase();
+
+            if (!allowedAdminsList.includes(adminNameInput)) {
+                showToast("الإجراء مرفوض! اسم المسؤول غير صالح.", "error");
+                return;
+            }
+
+            let finalAdminName = adminNameInput.toUpperCase();
+            let applicants = JSON.parse(localStorage.getItem('syriaIdApplicants')) || [];
+
+            if (currentActionType === 'delete') {
+                applicants = applicants.filter(app => app.id !== currentActionApplicantId);
+                localStorage.setItem('syriaIdApplicants', JSON.stringify(applicants));
+                closeAdminModal();
+                updateApplicantsUI();
+                showToast(`تم حذف الطلب بنجاح بواسطة ${finalAdminName}`, "success");
+            } else {
+                applicants = applicants.map(app => {
+                    if (app.id === currentActionApplicantId) {
+                        app.status = currentActionType;
+                        app.adminActionBy = finalAdminName;
+                    }
+                    return app;
+                });
+
+                localStorage.setItem('syriaIdApplicants', JSON.stringify(applicants));
+                closeAdminModal();
+                updateApplicantsUI();
+                showToast(`تم تحديث حالة الطلب بنجاح بواسطة ${finalAdminName}`, "success");
+            }
+        }
+
+        function acceptApplicant(id) {
+            openAdminModal(id, 'accepted');
+        }
+
+        function rejectApplicant(id) {
+            openAdminModal(id, 'rejected');
+        }
+
+        function deleteApplicant(id) {
+            openAdminModal(id, 'delete');
+        }
+
+        function checkFormState() {
+            let isClosed = localStorage.getItem('syriaIdFormClosed') === 'true';
+            let submitBtn = document.getElementById('submitBtnText');
+            let noticeBox = document.getElementById('form-closed-notice');
+            let toggleBtn = document.getElementById('toggle-form-btn');
+            let statusText = document.getElementById('form-status-text');
+            let formInputs = document.querySelectorAll('#discordForm input, #discordForm textarea');
+
+            if (isClosed) {
+                if(noticeBox) noticeBox.style.display = 'block';
+                if(submitBtn) submitBtn.style.display = 'none';
+                formInputs.forEach(input => input.disabled = true);
+
+                if(toggleBtn) {
+                    toggleBtn.textContent = 'فتح التقديم';
+                    toggleBtn.className = 'toggle-action-btn btn-open-form';
+                }
+                if(statusText) statusText.textContent = 'التقديم مغلق حالياً ولا يمكن للمستخدمين إرسال طلبات جديدة.';
+            } else {
+                if(noticeBox) noticeBox.style.display = 'none';
+                if(submitBtn) submitBtn.style.display = 'flex';
+                formInputs.forEach(input => input.disabled = false);
+
+                if(toggleBtn) {
+                    toggleBtn.textContent = 'إغلاق التقديم';
+                    toggleBtn.className = 'toggle-action-btn btn-close-form';
+                }
+                if(statusText) statusText.textContent = 'التقديم مفتوح حالياً ويمكن للجميع إرسال استماراتهم.';
+            }
+        }
+
+        function toggleFormStatus() {
+            let isClosed = localStorage.getItem('syriaIdFormClosed') === 'true';
+            if (isClosed) {
+                localStorage.setItem('syriaIdFormClosed', 'false');
+                showToast("تم فتح باب التقديم بنجاح!", "success");
+            } else {
+                localStorage.setItem('syriaIdFormClosed', 'true');
+                showToast("تم إغلاق باب التقديم بنجاح!", "error");
+            }
+            checkFormState();
+        }
+
+        function sendToDiscord(event) {
+            event.preventDefault(); 
+
+            if (localStorage.getItem('syriaIdFormClosed') === 'true') {
+                showToast("عذراً، باب التقديم مغلق حالياً!", "error");
+                return;
+            }
+
+            const webhookURL = "https://discord.com/api/webhooks/1552023840928825434/GV5efS4P3pWX7N5-NGXnJRd-2K9IOj7PbmDmWVTIyas5v_evQ-kN1SI-iD_uTgkvd1O3"; 
+
+            const name = document.getElementById('f-name').value;
+            const discord = document.getElementById('f-discord').value;
+            const age = document.getElementById('f-age').value;
+            const exp = document.getElementById('f-exp').value;
+            const offer = document.getElementById('f-offer').value;
+            const time = document.getElementById('f-time').value;
+            const bans = document.getElementById('f-bans').value;
+            const servers = document.getElementById('f-servers').value;
+            const oldexp = document.getElementById('f-oldexp').value;
+            const why = document.getElementById('f-why').value;
+
+            // حفظ الطلب محلياً فوراً بغض النظر عن حالة الاتصال بالديسكورد لضمان ظهوره بلوحة الإدارة
+            let applicants = JSON.parse(localStorage.getItem('syriaIdApplicants')) || [];
+            const newApplicant = {
+                id: Date.now(),
+                name: name,
+                discord: discord,
+                date: new Date().toLocaleDateString('ar-SA'),
+                status: 'pending',
+                adminActionBy: ''
+            };
+            applicants.unshift(newApplicant); 
+            localStorage.setItem('syriaIdApplicants', JSON.stringify(applicants));
+            updateApplicantsUI();
+
+            const discordMessage = {
+                "embeds": [{
+                    "title": "📋 طلب تقديم جديد على الإدارة - SYRIA ID",
+                    "color": 50137,
+                    "fields": [
+                        { "name": "👤 الاسم الكامل", "value": name, "inline": true },
+                        { "name": "💬 ديسكورد", "value": discord, "inline": true },
+                        { "name": "📅 العمر", "value": age, "inline": true },
+                        { "name": "⏳ مدة الخبرة", "value": exp, "inline": true },
+                        { "name": "💡 ما يقدمه للإدارة", "value": offer },
+                        { "name": "⏰ وقت التواجد", "value": time },
+                        { "name": "⚠️ العقوبات والباندات", "value": bans },
+                        { "name": "🌐 سيرفرات أخرى", "value": servers || "لا يوجد", "inline": true },
+                        { "name": "📜 خبرات سابقة", "value": oldexp || "لا يوجد", "inline": true },
+                        { "name": "❓ سبب الانضمام", "value": why }
+                    ],
+                    "footer": {
+                        "text": "SYRIA ID Management System © 2026"
+                    },
+                    "timestamp": new Date().toISOString()
+                }]
+            };
+
+            const btn = document.getElementById('submitBtnText');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...';
+            btn.disabled = true;
+
+            fetch(webhookURL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(discordMessage)
+            })
+            .then(response => {
+                if (response.ok) {
+                    showToast("تم إرسال طلبك بنجاح إلى ديسكورد وحفظه في لوحة الإدارة!", "success");
+                    document.getElementById('discordForm').reset();
+                } else {
+                    showToast("تم حفظ الطلب في لوحة الإدارة، ولكن حدث خطأ في إرسال إشعار ديسكورد.", "error");
+                }
+                btn.innerHTML = '<i class="fa-brands fa-discord"></i> إرسال الطلب إلى الديسكورد والموقع';
+                btn.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast("تم حفظ الطلب محلياً، ولكن تعذر الاتصال بالديسكورد.", "error");
+                btn.innerHTML = '<i class="fa-brands fa-discord"></i> إرسال الطلب إلى الديسكورد والموقع';
+                btn.disabled = false;
+            });
+        }
+
+        function updateApplicantsUI() {
+            let applicants = JSON.parse(localStorage.getItem('syriaIdApplicants')) || [];
+            
+            let total = applicants.length;
+            let accepted = applicants.filter(app => app.status === 'accepted').length;
+            let rejected = applicants.filter(app => app.status === 'rejected').length;
+
+            document.getElementById('total-apps').textContent = total;
+            document.getElementById('accepted-apps').textContent = accepted;
+            document.getElementById('rejected-apps').textContent = rejected;
+
+            let container = document.getElementById('applicants-list-container');
+            container.innerHTML = '';
+
+            if (applicants.length === 0) {
+                container.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 15px;">لا توجد طلبات جديدة حتى الآن.</p>';
+                return;
+            }
+
+            applicants.forEach(app => {
+                let item = document.createElement('div');
+                item.className = 'applicant-item';
+
+                let statusBadge = '';
+                if (app.status === 'accepted') {
+                    let byText = app.adminActionBy ? ` (بواسطة: ${app.adminActionBy})` : '';
+                    statusBadge = `<span class="status-badge accepted">مقبول${byText}</span>`;
+                } else if (app.status === 'rejected') {
+                    let byText = app.adminActionBy ? ` (بواسطة: ${app.adminActionBy})` : '';
+                    statusBadge = `<span class="status-badge rejected">مرفوض${byText}</span>`;
+                } else {
+                    statusBadge = '<span class="status-badge pending">معلق</span>';
+                }
+
+                item.innerHTML = `
+                    <div class="applicant-info">
+                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100" alt="avatar">
+                        <div>
+                            <h4>${app.name} (${app.discord})</h4>
+                            <span>تاريخ التقديم: ${app.date}</span>
+                        </div>
+                    </div>
+                    <div class="applicant-actions">
+                        ${statusBadge}
+                        <button class="action-btn btn-accept" onclick="acceptApplicant(${app.id})" title="قبول"><i class="fa-solid fa-check"></i> قبول</button>
+                        <button class="action-btn btn-reject" onclick="rejectApplicant(${app.id})" title="رفض"><i class="fa-solid fa-xmark"></i> رفض</button>
+                        <button class="action-btn btn-delete" onclick="deleteApplicant(${app.id})" title="حذف"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        window.onload = function() {
+            updateApplicantsUI();
+            checkFormState();
+        };
+
+        function verifyPassword() {
+            let passwordInput = document.getElementById('admin-password-input').value;
+            
+            if (passwordInput === "adminsyria") {
+                sessionStorage.setItem("adminAuth", "true");
+                switchTab('upper-admin');
+            } else {
+                showToast("كلمة المرور غير صحيحة!", "error");
+                document.getElementById('admin-password-input').value = '';
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
+            
+            const homeContent = document.getElementById('home-content');
+            const upperAdminContent = document.getElementById('upper-admin-content');
+            const rulesContent = document.getElementById('rules-content');
+            const adminFormContent = document.getElementById('admin-form-content');
+            const loginViewContent = document.getElementById('login-view-content');
+            const teamContent = document.getElementById('team-content');
+            const pageTitle = document.getElementById('page-title');
+
+            homeContent.style.display = 'none';
+            upperAdminContent.style.display = 'none';
+            rulesContent.style.display = 'none';
+            adminFormContent.style.display = 'none';
+            loginViewContent.style.display = 'none';
+            teamContent.style.display = 'none';
+
+            if (tab === 'home') {
+                document.getElementById('nav-home').classList.add('active');
+                homeContent.style.display = 'block';
+                pageTitle.textContent = 'الرئيسية';
+            } else if (tab === 'rules') {
+                document.getElementById('nav-rules').classList.add('active');
+                rulesContent.style.display = 'block';
+                pageTitle.textContent = 'قوانين الإدارة';
+            } else if (tab === 'team') {
+                document.getElementById('nav-team').classList.add('active');
+                teamContent.style.display = 'block';
+                pageTitle.textContent = 'الإدارة';
+            } else if (tab === 'upper-admin') {
+                document.getElementById('nav-upper-admin').classList.add('active');
+                if (sessionStorage.getItem("adminAuth") === "true") {
+                    upperAdminContent.style.display = 'block';
+                    pageTitle.textContent = 'الإدارة العليا';
+                    updateApplicantsUI();
+                    checkFormState();
+                } else {
+                    loginViewContent.style.display = 'block';
+                    pageTitle.textContent = 'تسجيل دخول الإدارة العليا';
+                }
+            } else if (tab === 'form-admin') {
+                document.getElementById('nav-form-admin').classList.add('active');
+                adminFormContent.style.display = 'block';
+                pageTitle.textContent = 'استمارة التقديم على الإدارة';
+                checkFormState();
+            }
+        }
+    </script>
+</body>
+</html>
