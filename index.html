@@ -1064,6 +1064,18 @@
                     <div></div>
                 </div>
 
+                <!-- مساعدة الإداري abo yahya -->
+                <div class="applicant-item">
+                    <div class="applicant-info">
+                        <img src="abo.png" alt="abo yahya" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
+                        <div>
+                            <h4>abo yahya</h4>
+                            <span>الرتبة: إداري</span>
+                        </div>
+                    </div>
+                    <div></div>
+                </div>
+
                 <!-- مساعد إداري ابو حلب -->
                 <div class="applicant-item">
                     <div class="applicant-info">
@@ -1130,18 +1142,6 @@
                         <img src="ali.png" alt="ALI" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
                         <div>
                             <h4>ALI</h4>
-                            <span>الرتبة: إداري مبتدئ</span>
-                        </div>
-                    </div>
-                    <div></div>
-                </div>
-
-                <!-- إداري مبتدئ abo yahya (المضاف حديثاً) -->
-                <div class="applicant-item">
-                    <div class="applicant-info">
-                        <img src="logo.png" alt="abo yahya" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'">
-                        <div>
-                            <h4>abo yahya</h4>
                             <span>الرتبة: إداري مبتدئ</span>
                         </div>
                     </div>
@@ -1457,6 +1457,7 @@
             const oldexp = document.getElementById('f-oldexp').value;
             const why = document.getElementById('f-why').value;
 
+            // حفظ الطلب محلياً فوراً بغض النظر عن حالة الاتصال بالديسكورد لضمان ظهوره بلوحة الإدارة
             let applicants = JSON.parse(localStorage.getItem('syriaIdApplicants')) || [];
             const newApplicant = {
                 id: Date.now(),
